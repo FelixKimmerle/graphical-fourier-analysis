@@ -44,7 +44,6 @@ class Result
 
   public:
     Result(Complex p_number, bool p_isX = false);
-    ~Result();
     void Append(std::vector<Item> *p_Programm) const;
     void Append(const Result & rhs);
     void Add(const Item &item);
@@ -80,7 +79,6 @@ class Result
     void operator/=(const Result &rhs);
     void operator+=(const Result &rhs);
     void operator-=(const Result &rhs);
-    void operator=(const Result &rhs);
     void operator=(const Complex &rhs);
     Result operator*(const double &rhs);
 };

@@ -16,7 +16,7 @@ bool TokenDefinition::GetIsIgnored()
 	return IsIgnored;
 }
 
-regex TokenDefinition::GetRegex()
+const regex &TokenDefinition::GetRegex() const
 {
 	return Regex;
 }

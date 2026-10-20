@@ -1,23 +1,22 @@
 #pragma once
-#include "LineShape.hpp"
 #include <SFML/Graphics.hpp>
-#include <list>
+#include <deque>
+
+// Scrolling line plot that keeps the last p_uiCapacity values and scales itself to the largest value seen.
 class RectanglePlot : public sf::Drawable, public sf::Transformable
 {
 private:
-    sf::LineShape m_ZeroLine;
+    sf::RectangleShape m_ZeroLine;
     sf::RectangleShape m_Outline;
-    sf::CircleShape m_Point;
-    std::list<float> m_Data;
-    //std::vector<sf::LineShape> m_Lines;
+    std::deque<float> m_Data;
     float m_fMax;
-    float m_fStep;
-    unsigned int m_uiMax;
-    
+    unsigned int m_uiCapacity;
 
-    virtual void draw(sf::RenderTarget &target, sf::RenderStates states) const;
+    void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
+
 public:
-    RectanglePlot(sf::Vector2f p_Size,float p_fStep = 5.f);
-    ~RectanglePlot();
+    RectanglePlot(sf::Vector2f p_Size, unsigned int p_uiCapacity = 1000);
+    void SetSize(sf::Vector2f p_Size);
     void Add(float p_fValue);
+    void Clear();
 };

@@ -1,84 +1,138 @@
-#include <iostream>
+#include "FT/FT.hpp"
 #include "Math/MathParser.hpp"
-#include <SFML/Graphics.hpp>
-#include <Plot/RoundChart.hpp>
-#include <FT/FT.hpp>
 #include "Plot/RectanglePlot.hpp"
+#include "Plot/RoundChart.hpp"
+#include <SFML/Graphics.hpp>
+#include <algorithm>
+#include <cstdio>
+#include <iostream>
+
+namespace
+{
+constexpr unsigned int SAMPLES = 1000;      // number of samples taken from f(x)
+constexpr float SAMPLE_STEP = 0.01f;        // distance between samples, so x runs from 0 to 10
+constexpr float FREQUENCY_STEP = 0.006f;    // winding frequency increase per frame (at speed 1)
+constexpr float MARGIN = 30.f;
+
+void Layout(sf::Vector2u size, RoundChart &chart, RectanglePlot &plot)
+{
+    const float width = static_cast<float>(size.x);
+    const float height = static_cast<float>(size.y);
+    const float plotHeight = std::max(80.f, height * 0.22f);
+    const float radius = std::max(10.f, std::min(width - 2 * MARGIN, height - plotHeight - 3 * MARGIN) / 2);
+
+    chart.SetRadius(radius);
+    chart.setPosition({width / 2, MARGIN + radius});
+
+    plot.setPosition({MARGIN, 2 * MARGIN + 2 * radius});
+    plot.SetSize({width - 2 * MARGIN, height - 3 * MARGIN - 2 * radius});
+}
+} // namespace
+
 int main(int argc, char **argv)
 {
-    std::string sSource = "";
+    std::string sSource;
     if (argc == 1)
     {
-        std::cout << "Formel: ";
-        std::cin >> sSource;
+        std::cout << "f(x) = ";
+        std::getline(std::cin, sSource);
     }
     else
     {
-        sSource = argv[1];
-        std::cout << "Formel: " << sSource << std::endl;
+        for (int i = 1; i < argc; i++)
+        {
+            sSource += (i > 1 ? " " : "") + std::string(argv[i]);
+        }
+        std::cout << "f(x) = " << sSource << std::endl;
     }
 
     MathParser mp;
     mp.Parse(sSource);
     auto programm = mp.Calc();
-    programm.Print();
-
-    sf::ContextSettings settings(0, 0, 4);
-
-    sf::RenderWindow window(sf::VideoMode(800, 800), "FT", sf::Style::Close, settings);
-    window.setVerticalSyncEnabled(true);
-    RoundChart chart(200, 1000);
-    chart.setPosition(100, 200);
-    std::vector<float> data(1000);
-
-    RectanglePlot rp(sf::Vector2f(600, 100),0.1f);
-    rp.setPosition(100, 600);
-
-    for (size_t i = 0; i < 1000; i++)
+    if (mp.HasError())
     {
-        data[i] = programm.Calc(i/100.f).real();
+        return EXIT_FAILURE;
     }
-    sf::Clock clock;
-    unsigned int uiFrames = 0;
 
+    std::vector<float> data(SAMPLES);
+    for (size_t i = 0; i < data.size(); i++)
+    {
+        data[i] = static_cast<float>(programm.Calc(i * SAMPLE_STEP).real());
+    }
     FT ft(data);
-    unsigned int c = 0;
+
+    sf::ContextSettings settings;
+    settings.antiAliasingLevel = 4;
+    sf::RenderWindow window(sf::VideoMode({900, 1000}), "Graphical Fourier Analysis", sf::Style::Default,
+                            sf::State::Windowed, settings);
+    window.setVerticalSyncEnabled(true);
+
+    RoundChart chart;
+    RectanglePlot plot({1, 1});
+    Layout(window.getSize(), chart, plot);
+
+    bool bPaused = false;
+    float fSpeed = 1.f;
+    unsigned int uiFrame = 0;
     while (window.isOpen())
     {
-        sf::Event event;
-        while (window.pollEvent(event))
+        while (const std::optional event = window.pollEvent())
         {
-            if (event.type == sf::Event::Closed || (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape))
+            if (event->is<sf::Event::Closed>())
             {
                 window.close();
             }
-            else if (event.type == sf::Event::Resized)
+            else if (const auto *resized = event->getIf<sf::Event::Resized>())
             {
-                window.setView(sf::View(sf::FloatRect(0, 0, event.size.width, event.size.height)));
-                chart.setPosition(event.size.width / 2, 200);
+                window.setView(sf::View(sf::FloatRect({0, 0}, sf::Vector2f(resized->size))));
+                Layout(resized->size, chart, plot);
             }
+            else if (const auto *key = event->getIf<sf::Event::KeyPressed>())
+            {
+                switch (key->code)
+                {
+                case sf::Keyboard::Key::Escape:
+                    window.close();
+                    break;
+                case sf::Keyboard::Key::Space:
+                    bPaused = !bPaused;
+                    break;
+                case sf::Keyboard::Key::R:
+                    ft.Reset();
+                    plot.Clear();
+                    break;
+                case sf::Keyboard::Key::Up:
+                    fSpeed = std::min(fSpeed * 2, 32.f);
+                    break;
+                case sf::Keyboard::Key::Down:
+                    fSpeed = std::max(fSpeed / 2, 1.f / 32);
+                    break;
+                default:
+                    break;
+                }
+            }
+        }
+
+        if (!bPaused)
+        {
+            auto center = ft.Update(FREQUENCY_STEP * fSpeed);
+            plot.Add(center.real());
+            chart.Update(ft.GetData(), center);
+        }
+
+        if (uiFrame++ % 10 == 0)
+        {
+            // Frequency in windings per unit of x (the samples span SAMPLES * SAMPLE_STEP units)
+            char title[128];
+            std::snprintf(title, sizeof(title), "Graphical Fourier Analysis - %.3f windings per unit - speed x%g%s",
+                          ft.GetFrequency() / (SAMPLES * SAMPLE_STEP), fSpeed, bPaused ? " - paused" : "");
+            window.setTitle(title);
         }
 
         window.clear();
         window.draw(chart);
-        window.draw(rp);
+        window.draw(plot);
         window.display();
-        uiFrames++;
-        for (size_t i = 0; i < 5; i++)
-        {
-            ft.Update(0.001);
-        }
-        
-        auto center = ft.Update(0.001);
-        rp.Add(center.real());
-        c++;
-        chart.Update(ft.GetData(), center);
-        if (clock.getElapsedTime().asMilliseconds() >= 1000)
-        {
-            std::cout << uiFrames << "FPS" << std::endl;
-            uiFrames = 0;
-            clock.restart();
-        }
     }
 
     return EXIT_SUCCESS;

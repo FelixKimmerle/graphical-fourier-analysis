@@ -11,6 +11,7 @@ class MathParser
 	~MathParser();
 	void Parse(string Expression);
 	Programm Calc();
+	bool HasError() const;
 
   private:
 	enum ETokens
@@ -51,14 +52,19 @@ class MathParser
 	list<Token> m_lTokens;
 	list<Token>::iterator m_lTokensIterator;
 	Token m_CToken;
+	bool m_bError;
 
 	void Accept(ETokens token);
 	void GetNextToken();
 
-	Result Level0();
-	Result Level1();
-	Result Level2();
+	void ReportError(const string &message);
+	bool StartsOperand();
+
+	Result Level0(); // + -
+	Result Level1(); // * / and implicit multiplication
+	Result Level2(); // unary sign
+	Result Level3(); // ^
+	Result Level4(); // numbers, constants, functions, brackets
 
 	vector<Result> GetArguments(int Number);
-	vector<Item> m_Programm;
 };

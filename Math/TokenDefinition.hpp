@@ -7,7 +7,7 @@ public:
 	TokenDefinition(int type,string Regex,bool IsIgnored = false);
 	~TokenDefinition();
 	bool GetIsIgnored();
-	regex GetRegex();
+	const regex &GetRegex() const;
 	int GetType();
 private:
 	bool IsIgnored;

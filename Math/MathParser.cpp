@@ -2,12 +2,12 @@
 #include <iostream>
 using namespace std;
 using namespace std::complex_literals;
-MathParser::MathParser() : m_CToken(0, "", TokenPosition(0, 0, 0))
+MathParser::MathParser() : m_CToken(0, "", TokenPosition(0, 0, 0)), m_bError(false)
 {
 	m_Clexer.AddDefinition(Unknown, "[a-zA-Z]");
 	m_Clexer.AddDefinition(Whitespace, "\\s+", true);
 	m_Clexer.AddDefinition(Comma, ",");
-	m_Clexer.AddDefinition(Number, "[\\d]+[\\.]*[\\d]*");
+	m_Clexer.AddDefinition(Number, "\\d+(\\.\\d*)?|\\.\\d+");
 	m_Clexer.AddDefinition(Plus, "\\+");
 	m_Clexer.AddDefinition(Minus, "-");
 	m_Clexer.AddDefinition(Mul, "\\*");
@@ -42,10 +42,6 @@ void MathParser::Parse(string Expression)
 	m_lTokens = m_Clexer.Tokenize(Expression);
 	m_lTokensIterator = m_lTokens.begin();
 	m_CToken = *m_lTokensIterator;
-	/*for (auto x = m_lTokens.begin(); x != m_lTokens.end(); x++)
-	{
-		std::cout << x->GetType() << "\t" << x->GetValue() << std::endl;
-	}*/
 }
 
 Programm MathParser::Calc()
@@ -53,18 +49,65 @@ Programm MathParser::Calc()
 	m_lTokensIterator = m_lTokens.begin();
 	m_CToken = *m_lTokensIterator;
 	m_iCurrentPosition = 0;
+	m_bError = false;
 	Result r = Level0();
+	if (m_CToken.GetType() != End)
+	{
+		ReportError("unexpected '" + m_CToken.GetValue() + "'");
+	}
 
 	return Programm(r.GetProgramm());
+}
+
+bool MathParser::HasError() const
+{
+	return m_bError;
+}
+
+void MathParser::ReportError(const string &message)
+{
+	m_bError = true;
+	cerr << "Error at column " << m_CToken.GetTokenPosition().GetColumn() + 1 << ": " << message << endl;
 }
 
 void MathParser::Accept(ETokens token)
 {
 	if (m_CToken.GetType() != token)
 	{
-		cout << "Unexpected Token: " << m_CToken.GetType() << " = " << m_CToken.GetValue() << " es wurde " << token << " erwartet | Line:" << m_CToken.GetTokenPosition().GetLine() << " Column: " << m_CToken.GetTokenPosition().GetColumn() << " Index: " << m_CToken.GetTokenPosition().GetIndex() << endl;
+		static const map<int, string> names = {{BracketOpen, "'('"}, {BracketClose, "')'"}, {Abs, "'|'"}, {Comma, "','"}};
+		auto name = names.find(token);
+		string found = m_CToken.GetType() == End ? "end of input" : "'" + m_CToken.GetValue() + "'";
+		ReportError("expected " + (name != names.end() ? name->second : "token") + " but found " + found);
 	}
 	GetNextToken();
+}
+
+bool MathParser::StartsOperand()
+{
+	switch (m_CToken.GetType())
+	{
+	case Number:
+	case BracketOpen:
+	case Sin:
+	case ASin:
+	case Cos:
+	case ACos:
+	case Tan:
+	case ATan:
+	case Sqrt:
+	case Pow:
+	case Log:
+	case Imag:
+	case Real:
+	case PLog:
+	case KomplexNumber:
+	case Pi:
+	case Eulernumber:
+	case Unknown:
+		return true;
+	default:
+		return false;
+	}
 }
 
 void MathParser::GetNextToken()
@@ -100,26 +143,21 @@ Result MathParser::Level1()
 {
 	Result result = Level2();
 
-	while (m_CToken.GetType() == Mul || m_CToken.GetType() == Div || (m_CToken.GetType() != End && m_CToken.GetType() != BracketClose && m_CToken.GetType() != Plus && m_CToken.GetType() != Minus && m_CToken.GetType() != Comma && m_CToken.GetType() != Abs))
+	while (m_CToken.GetType() == Mul || m_CToken.GetType() == Div || StartsOperand())
 	{
 		if (m_CToken.GetType() == Mul)
 		{
 			GetNextToken();
-			result *= Level1();
+			result *= Level2();
 		}
 		else if (m_CToken.GetType() == Div)
 		{
 			GetNextToken();
-			result /= Level1();
-		}
-		else if (m_CToken.GetType() == IPow)
-		{
-			GetNextToken();
-			result ^= Level2();
+			result /= Level2();
 		}
 		else
 		{
-			result *= Level1();
+			result *= Level3();
 		}
 	}
 
@@ -128,13 +166,41 @@ Result MathParser::Level1()
 
 Result MathParser::Level2()
 {
-	Result result(0, 0);
 	bool sign = false;
 	if (m_CToken.GetType() == Minus || m_CToken.GetType() == Plus)
 	{
 		sign = m_CToken.GetType() == Minus;
 		GetNextToken();
 	}
+	Result result = Level3();
+	if (sign)
+	{
+		if (result.HasX())
+		{
+			result.Add(ONEG);
+		}
+		else
+		{
+			result *= -1;
+		}
+	}
+	return result;
+}
+
+Result MathParser::Level3()
+{
+	Result result = Level4();
+	if (m_CToken.GetType() == IPow)
+	{
+		GetNextToken();
+		result ^= Level2();
+	}
+	return result;
+}
+
+Result MathParser::Level4()
+{
+	Result result(0, 0);
 	switch (m_CToken.GetType())
 	{
 	case Number:
@@ -392,22 +458,13 @@ Result MathParser::Level2()
 		result.setX();
 		GetNextToken();
 		break;
-	default:
+	case End:
+		ReportError("unexpected end of input");
 		break;
-	}
-	if (result.HasX())
-	{
-		if (sign)
-		{
-			result.Add(ONEG);
-		}
-	}
-	else
-	{
-		if (sign)
-		{
-			result *= -1;
-		}
+	default:
+		ReportError("unexpected '" + m_CToken.GetValue() + "'");
+		GetNextToken();
+		break;
 	}
 	return result;
 }
@@ -423,7 +480,7 @@ vector<Result> MathParser::GetArguments(int Number)
 		Accept(Comma);
 		if (Counter >= Number)
 		{
-			cout << "to much Arguments" << endl;
+			ReportError("too many arguments");
 			break;
 		}
 		Arguments.push_back(Level0());
@@ -431,7 +488,8 @@ vector<Result> MathParser::GetArguments(int Number)
 	}
 	if (Number > Counter)
 	{
-		cout << "not enough arguments" << endl;
+		ReportError("not enough arguments");
+		Arguments.resize(Number, Result(0));
 	}
 	Accept(BracketClose);
 	return Arguments;

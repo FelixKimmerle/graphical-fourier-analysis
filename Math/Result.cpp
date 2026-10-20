@@ -4,10 +4,6 @@ Result::Result(Complex p_number, bool p_isX) : isX(p_isX), number(p_number)
 {
 }
 
-Result::~Result()
-{
-}
-
 void Result::Append(std::vector<Item> *p_Programm) const
 {
     if (isX)
@@ -56,9 +52,9 @@ void Result::operator*=(const Result &rhs)
     }
     else if (rhs.isX)
     {
-        rhs.Append(&m_Programm);
         m_Programm.push_back(Item(OPUSH));
         m_Programm.push_back(Item(number));
+        rhs.Append(&m_Programm);
         m_Programm.push_back(Item(OMUL));
         isX = true;
         return;
@@ -94,9 +90,9 @@ void Result::operator/=(const Result &rhs)
     }
     else if (rhs.isX)
     {
-        rhs.Append(&m_Programm);
         m_Programm.push_back(Item(OPUSH));
         m_Programm.push_back(Item(number));
+        rhs.Append(&m_Programm);
         m_Programm.push_back(Item(ODIV));
         isX = true;
         return;
@@ -113,9 +109,9 @@ void Result::operator+=(const Result &rhs)
     }
     else if (rhs.isX)
     {
-        rhs.Append(&m_Programm);
         m_Programm.push_back(Item(OPUSH));
         m_Programm.push_back(Item(number));
+        rhs.Append(&m_Programm);
         m_Programm.push_back(Item(OADD));
         isX = true;
         return;
@@ -132,20 +128,14 @@ void Result::operator-=(const Result &rhs)
     }
     else if (rhs.isX)
     {
-        rhs.Append(&m_Programm);
         m_Programm.push_back(Item(OPUSH));
         m_Programm.push_back(Item(number));
+        rhs.Append(&m_Programm);
         m_Programm.push_back(Item(OSUB));
         isX = true;
         return;
     }
     number -= rhs.number;
-}
-void Result::operator=(const Result &rhs)
-{
-    this->m_Programm = rhs.m_Programm;
-    this->isX = rhs.isX;
-    this->number = rhs.number;
 }
 void Result::operator=(const Complex &rhs)
 {

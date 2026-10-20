@@ -35,8 +35,8 @@ list<Token> Lexer::Tokenize(string source)
 		for (auto var = tokenDefinitions.begin(); var != tokenDefinitions.end(); ++var)
 		{
 			std::smatch sm;
-			bool sucess = regex_search(source, sm, var->GetRegex());
-			if (sucess && source.substr(0, sm.str().length()) == sm.str())
+			bool sucess = regex_search(source, sm, var->GetRegex(), regex_constants::match_continuous);
+			if (sucess && sm.length() > 0)
 			{
 				matchedDefinition = *var;
 				matchLength = sm.str().length();
@@ -50,8 +50,10 @@ list<Token> Lexer::Tokenize(string source)
 		}
 		if (matchedStr == "NULL")
 		{
+			Res.push_back(Token(0, source.substr(0, 1), TokenPosition(currentIndex, currentLine, currentColumn)));
 			currentIndex += 1;
-			Res.push_back(Token(0, "", TokenPosition(currentIndex, currentLine, currentColumn)));
+			currentColumn += 1;
+			source.erase(0, 1);
 		}
 		else
 		{
