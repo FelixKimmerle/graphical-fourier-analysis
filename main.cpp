@@ -9,12 +9,12 @@
 
 namespace
 {
-constexpr unsigned int SAMPLES = 1000;      // number of samples taken from f(x)
-constexpr float SAMPLE_STEP = 0.01f;        // distance between samples, so x runs from 0 to 10
-constexpr float FREQUENCY_STEP = 0.006f;    // winding frequency increase per frame (at speed 1)
+constexpr unsigned int SAMPLES = 1000;   // number of samples taken from f(x)
+constexpr float SAMPLE_STEP = 0.01f;     // distance between samples, so x runs from 0 to 10
+constexpr float FREQUENCY_STEP = 0.006f; // winding frequency increase per frame (at speed 1)
 constexpr float MARGIN = 30.f;
 
-void Layout(sf::Vector2u size, RoundChart &chart, RectanglePlot &plot)
+void Layout(sf::Vector2u size, RoundChart& chart, RectanglePlot& plot)
 {
     const float width = static_cast<float>(size.x);
     const float height = static_cast<float>(size.y);
@@ -29,7 +29,7 @@ void Layout(sf::Vector2u size, RoundChart &chart, RectanglePlot &plot)
 }
 } // namespace
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
     std::string sSource;
     if (argc == 1)
@@ -82,12 +82,12 @@ int main(int argc, char **argv)
             {
                 window.close();
             }
-            else if (const auto *resized = event->getIf<sf::Event::Resized>())
+            else if (const auto* resized = event->getIf<sf::Event::Resized>())
             {
                 window.setView(sf::View(sf::FloatRect({0, 0}, sf::Vector2f(resized->size))));
                 Layout(resized->size, chart, plot);
             }
-            else if (const auto *key = event->getIf<sf::Event::KeyPressed>())
+            else if (const auto* key = event->getIf<sf::Event::KeyPressed>())
             {
                 switch (key->code)
                 {

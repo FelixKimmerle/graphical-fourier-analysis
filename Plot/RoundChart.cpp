@@ -37,7 +37,7 @@ void RoundChart::SetRadius(float p_fRadius)
     m_Center.setOrigin({m_Center.getRadius(), m_Center.getRadius()});
 }
 
-void RoundChart::Update(const std::vector<std::complex<float>> &p_vData, std::complex<float> center)
+void RoundChart::Update(const std::vector<std::complex<float>>& p_vData, std::complex<float> center)
 {
     m_Line.resize(p_vData.size());
     for (size_t i = 0; i < p_vData.size(); i++)
@@ -48,7 +48,7 @@ void RoundChart::Update(const std::vector<std::complex<float>> &p_vData, std::co
     m_Center.setPosition({center.real() * m_fRadius, center.imag() * m_fRadius});
 }
 
-void RoundChart::draw(sf::RenderTarget &target, sf::RenderStates states) const
+void RoundChart::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
     states.transform *= getTransform();
 

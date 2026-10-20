@@ -2,9 +2,9 @@
 #include <string>
 TokenPosition::TokenPosition(int Index, int Line, int Column)
 {
-	this->Column = Column;
-	this->Index = Index;
-	this->Line = Line;
+    this->Column = Column;
+    this->Index = Index;
+    this->Line = Line;
 }
 
 TokenPosition::~TokenPosition()
@@ -13,20 +13,20 @@ TokenPosition::~TokenPosition()
 
 int TokenPosition::GetColumn()
 {
-	return Column;
+    return Column;
 }
 
 int TokenPosition::GetIndex()
 {
-	return Index;
+    return Index;
 }
 
 int TokenPosition::GetLine()
 {
-	return Line;
+    return Line;
 }
 
 std::string TokenPosition::ToString()
 {
-	return "Line: " + std::to_string(Line) + " Column: " + std::to_string(Column) + " Index: " + std::to_string(Index);
+    return "Line: " + std::to_string(Line) + " Column: " + std::to_string(Column) + " Index: " + std::to_string(Index);
 }

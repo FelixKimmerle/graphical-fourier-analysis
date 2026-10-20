@@ -19,7 +19,7 @@ void RectanglePlot::SetSize(sf::Vector2f p_Size)
     m_ZeroLine.setPosition({0, p_Size.y / 2});
 }
 
-void RectanglePlot::draw(sf::RenderTarget &target, sf::RenderStates states) const
+void RectanglePlot::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
     states.transform *= getTransform();
     target.draw(m_ZeroLine, states);

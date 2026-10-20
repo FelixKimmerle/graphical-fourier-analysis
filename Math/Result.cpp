@@ -4,7 +4,7 @@ Result::Result(Complex p_number, bool p_isX) : isX(p_isX), number(p_number)
 {
 }
 
-void Result::Append(std::vector<Item> *p_Programm) const
+void Result::Append(std::vector<Item>* p_Programm) const
 {
     if (isX)
     {
@@ -20,7 +20,7 @@ void Result::Append(std::vector<Item> *p_Programm) const
     }
 }
 
-void Result::Append(const Result &rhs)
+void Result::Append(const Result& rhs)
 {
     if (rhs.isX)
     {
@@ -37,12 +37,12 @@ void Result::Append(const Result &rhs)
     }
 }
 
-void Result::Add(const Item &item)
+void Result::Add(const Item& item)
 {
     m_Programm.push_back(item);
 }
 
-void Result::operator*=(const Result &rhs)
+void Result::operator*=(const Result& rhs)
 {
     if (isX)
     {
@@ -61,7 +61,7 @@ void Result::operator*=(const Result &rhs)
     }
     number *= rhs.number;
 }
-void Result::operator^=(const Result &rhs)
+void Result::operator^=(const Result& rhs)
 {
     if (isX)
     {
@@ -78,9 +78,9 @@ void Result::operator^=(const Result &rhs)
         isX = true;
         return;
     }
-    number = pow(number,rhs.number);
+    number = pow(number, rhs.number);
 }
-void Result::operator/=(const Result &rhs)
+void Result::operator/=(const Result& rhs)
 {
     if (isX)
     {
@@ -99,7 +99,7 @@ void Result::operator/=(const Result &rhs)
     }
     number /= rhs.number;
 }
-void Result::operator+=(const Result &rhs)
+void Result::operator+=(const Result& rhs)
 {
     if (isX)
     {
@@ -118,7 +118,7 @@ void Result::operator+=(const Result &rhs)
     }
     number += rhs.number;
 }
-void Result::operator-=(const Result &rhs)
+void Result::operator-=(const Result& rhs)
 {
     if (isX)
     {
@@ -137,12 +137,12 @@ void Result::operator-=(const Result &rhs)
     }
     number -= rhs.number;
 }
-void Result::operator=(const Complex &rhs)
+void Result::operator=(const Complex& rhs)
 {
     isX = false;
     number = rhs;
 }
-Result Result::operator*(const double &rhs)
+Result Result::operator*(const double& rhs)
 {
     if (isX)
     {
@@ -151,7 +151,7 @@ Result Result::operator*(const double &rhs)
     return Result(number * rhs, false);
 }
 
-void Result::operator*=(const double &rhs)
+void Result::operator*=(const double& rhs)
 {
     number *= rhs;
 }

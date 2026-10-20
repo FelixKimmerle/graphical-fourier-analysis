@@ -56,7 +56,7 @@ Complex Programm::Calc(Complex input)
     {
         return 0;
     }
-    std::vector<Complex> &stack = m_Stack;
+    std::vector<Complex>& stack = m_Stack;
     stack.clear();
     stack.reserve(m_uiStackSize);
 

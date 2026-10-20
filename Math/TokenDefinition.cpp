@@ -2,9 +2,9 @@
 
 TokenDefinition::TokenDefinition(int type, string Regex, bool IsIgnored)
 {
-	this->Type = type;
-	this->Regex = regex(Regex);
-	this->IsIgnored = IsIgnored;
+    this->Type = type;
+    this->Regex = regex(Regex);
+    this->IsIgnored = IsIgnored;
 }
 
 TokenDefinition::~TokenDefinition()
@@ -13,15 +13,15 @@ TokenDefinition::~TokenDefinition()
 
 bool TokenDefinition::GetIsIgnored()
 {
-	return IsIgnored;
+    return IsIgnored;
 }
 
-const regex &TokenDefinition::GetRegex() const
+const regex& TokenDefinition::GetRegex() const
 {
-	return Regex;
+    return Regex;
 }
 
 int TokenDefinition::GetType()
 {
-	return Type;
+    return Type;
 }

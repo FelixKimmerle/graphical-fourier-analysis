@@ -29,8 +29,8 @@ enum Operation
 };
 
 union Item {
-    Item(Complex p_number) : number(p_number){};
-    Item(Operation p_op) : op(p_op){};
+    Item(Complex p_number) : number(p_number) {};
+    Item(Operation p_op) : op(p_op) {};
     Complex number;
     Operation op;
 };
@@ -44,9 +44,9 @@ class Result
 
   public:
     Result(Complex p_number, bool p_isX = false);
-    void Append(std::vector<Item> *p_Programm) const;
-    void Append(const Result & rhs);
-    void Add(const Item &item);
+    void Append(std::vector<Item>* p_Programm) const;
+    void Append(const Result& rhs);
+    void Add(const Item& item);
     std::vector<Item> GetProgramm()
     {
         if (!isX)
@@ -73,12 +73,12 @@ class Result
         return number;
     }
 
-    void operator*=(const Result &rhs);
-    void operator^=(const Result &rhs);
-    void operator*=(const double &rhs);
-    void operator/=(const Result &rhs);
-    void operator+=(const Result &rhs);
-    void operator-=(const Result &rhs);
-    void operator=(const Complex &rhs);
-    Result operator*(const double &rhs);
+    void operator*=(const Result& rhs);
+    void operator^=(const Result& rhs);
+    void operator*=(const double& rhs);
+    void operator/=(const Result& rhs);
+    void operator+=(const Result& rhs);
+    void operator-=(const Result& rhs);
+    void operator=(const Complex& rhs);
+    Result operator*(const double& rhs);
 };

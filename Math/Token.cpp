@@ -10,35 +10,37 @@ Token::~Token()
 
 TokenPosition Token::GetTokenPosition()
 {
-	return Position;
+    return Position;
 }
 
 int Token::GetType()
 {
-	return Type;
+    return Type;
 }
 
 string Token::GetValue()
 {
-	return Value;
+    return Value;
 }
 
 void Token::SetTokenPosition(TokenPosition value)
 {
-	Position = value;
+    Position = value;
 }
 
 void Token::SetType(int value)
 {
-	Type = value;
+    Type = value;
 }
 
 void Token::SetValue(string value)
 {
-	Value = value;
+    Value = value;
 }
 
 string Token::ToString()
 {
-	return "Token: {{ Type: \"" + std::to_string(Type) + "\", Value: \"" + Value + "\", Position: {{ Index: \"" + std::to_string(Position.GetIndex()) + "\", Line: \"" + std::to_string(Position.GetLine()) + "\", Column: \"" + std::to_string(Position.GetColumn()) + "\" }} }}";
+    return "Token: {{ Type: \"" + std::to_string(Type) + "\", Value: \"" + Value + "\", Position: {{ Index: \"" +
+           std::to_string(Position.GetIndex()) + "\", Line: \"" + std::to_string(Position.GetLine()) +
+           "\", Column: \"" + std::to_string(Position.GetColumn()) + "\" }} }}";
 }

@@ -6,7 +6,7 @@
 // Shows the signal wound around a circle together with its center of mass.
 class RoundChart : public sf::Drawable, public sf::Transformable
 {
-private:
+  private:
     sf::VertexArray m_Line;
     sf::CircleShape m_ZeroShape;
     sf::CircleShape m_ZeroShapeBackground;
@@ -14,10 +14,10 @@ private:
     sf::CircleShape m_Center;
     float m_fRadius;
 
-    void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
+    void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
-public:
+  public:
     RoundChart(float p_fRadius = 100.f);
     void SetRadius(float p_fRadius);
-    void Update(const std::vector<std::complex<float>> &p_vData, std::complex<float> center);
+    void Update(const std::vector<std::complex<float>>& p_vData, std::complex<float> center);
 };
