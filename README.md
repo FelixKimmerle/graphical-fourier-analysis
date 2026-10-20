@@ -22,11 +22,11 @@ It recreates the "winding machine" from that video, with my own small math expre
 
 You need a C++17 compiler, CMake ≥ 3.28 and git. [SFML 3](https://www.sfml-dev.org/) is downloaded and built automatically with CMake's `FetchContent`, so you don't need to install it yourself.
 
-On Linux, SFML needs a few system development packages:
+On Linux, SFML needs a few system development packages. SFML's Linux backend is X11-only, so these are X11 *client* libraries (not an X server). On Wayland the app runs through XWayland, which GNOME, KDE and most other compositors provide out of the box.
 
 ```bash
 # Debian / Ubuntu
-sudo apt install libxrandr-dev libxcursor-dev libxi-dev libudev-dev libgl1-mesa-dev libegl1-mesa-dev
+sudo apt install libxrandr-dev libxcursor-dev libxi-dev libudev-dev libgl1-mesa-dev
 ```
 
 ```bash
